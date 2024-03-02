@@ -56,8 +56,9 @@ bool Configuration::sanityCheck(bool silent) {
       {(encoderPosition == EncoderPosition::motor || encoderPosition == EncoderPosition::joint),
        "encoder_position ∈ {\"motor\", \"joint\"}"},
       {(modeOfOperationEnum == ModeOfOperationEnum::CyclicSynchronousVelocityMode ||
-        modeOfOperationEnum == ModeOfOperationEnum::CyclicSynchronousTorqueMode),
-       "mode_of_operation ∈ {\"CyclicSynchronousVelocityMode\", \"CyclicSynchronounsTorqueMode\"}"},
+        modeOfOperationEnum == ModeOfOperationEnum::CyclicSynchronousTorqueMode,
+        modeOfOperationEnum == ModeOfOperationEnum::CyclicSynchronousPositionMode),
+       "mode_of_operation ∈ {\"CyclicSynchronousVelocityMode\", \"CyclicSynchronounsTorqueMode\", \"CyclicSynchronousPositionMode\"}"},
   };
 
   std::for_each(sanity_tests.begin(), sanity_tests.end(), check_and_inform);

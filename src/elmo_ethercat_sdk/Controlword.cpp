@@ -93,6 +93,9 @@ uint16_t Controlword::getRawControlword() {
   if (enableOperation_) {
     rawControlword |= (1 << 3);
   }
+  if (homingOperationStart_) {
+    rawControlword |= (1 << 4);
+  }
   if (faultReset_) {
     rawControlword |= (1 << 7);
   }

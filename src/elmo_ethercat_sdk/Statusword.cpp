@@ -60,6 +60,12 @@ std::ostream& operator<<(std::ostream& os, const Statusword& statusword) {
      << "| " << setw(gapSize2) << statusword.warning_ << "|\n"
      << setw(25) << "| Target reached:"
      << "| " << setw(gapSize2) << statusword.targetReached_ << "|\n"
+     << setw(25) << "| BIT13:"
+     << "| " << setw(gapSize2) << static_cast<bool>((statusword.rawStatusword_ & (1 << (13) ))) << "|\n"
+     << setw(25) << "| BIT12:"
+     << "| " << setw(gapSize2) << static_cast<bool>((statusword.rawStatusword_ & (1 << (12) ))) << "|\n"
+     << setw(25) << "| BIT10:"
+     << "| " << setw(gapSize2) << static_cast<bool>((statusword.rawStatusword_ & (1 << (10) ))) << "|\n"
      << setw(25) << "| Internal limit active:"
      << "| " << setw(gapSize2) << statusword.internalLimitActive_ << "|\n"
      <<
@@ -146,6 +152,16 @@ std::string Statusword::getDriveStateString() const {
     default:
       return "N/A";
   }
+}
+
+
+bool Statusword::getHomingFinished() const {
+  bool finished = true;
+  finished &= static_cast<bool>(!( (rawStatusword_) & (1 << 10) ));
+  finished &= static_cast<bool>(( (rawStatusword_) & (1 << 12) ));
+  finished &= static_cast<bool>(!( (rawStatusword_) & (1 << 13) ));
+  return finished;
+
 }
 
 }  // namespace elmo

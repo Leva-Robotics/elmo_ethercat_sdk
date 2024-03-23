@@ -79,6 +79,11 @@ class Elmo : public ecat_master::EthercatDevice {
   // Other
   double getActual5vVoltage() { return actual5vVoltage_; }
 
+  // Homing
+
+  bool doHoming();
+  bool storeParam();
+
  private:
   void engagePdoStateMachine();
   bool stateTransitionViaSdo(const StateTransition& stateTransition);

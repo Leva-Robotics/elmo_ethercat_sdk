@@ -102,10 +102,6 @@ bool Elmo::startup() {
   success &= sendSdoRead(OD_INDEX_5VDC_SUPPLY, 0, false, actual5vVoltage);  // [mV]
   actual5vVoltage_ = static_cast<double>(actual5vVoltage) / 1000.0;         // [V]
 
-  if (!success) {
-    MELO_ERROR_STREAM("[elmo_ethercat_sdk:Elmo::preStartupOnlineConfiguration] hardware configuration of '" << name_
-                                                                                                            << "' not successful!");
-  }
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   return success;
 }
@@ -277,6 +273,70 @@ bool Elmo::loadConfiguration(const Configuration& configuration) {
 Configuration Elmo::getConfiguration() const {
   return configuration_;
 }
+
+
+bool Elmo::storeParam() {
+  bool success = true;
+  //the signature bytes 0 to 3 's', 'a', 'v', 'e'
+  uint32_t signature = static_cast<uint32_t>(0x65766173);
+
+  success &= sendSdoWrite(OD_INDEX_STORE_PARAMETERS, static_cast<uint8_t>(1), false, signature);
+  // wait
+  return success;
+}
+
+bool Elmo::doHoming() {
+  bool success = true;
+
+  // Set homing method
+  success &= sdoVerifyWrite(OD_INDEX_HOMING_METHOD, 0, false, static_cast<uint8_t>(37),
+                            configuration_.configRunSdoVerifyTimeout);
+
+  // Set homing offset to zero
+
+  success &= sdoVerifyWrite(OD_INDEX_HOME_OFFSET, 0, false, static_cast<int32_t>(0),
+                            configuration_.configRunSdoVerifyTimeout);
+
+  // initialize the homing by writing to the controlword
+  // write bit 4 --> 1 to init homing
+
+  // change the mode to homing mode
+
+
+  controlword_.homingOperationStart_ = true;
+
+  // wait for the homing to be finished
+  // bits should be bit_13: 0, bit_12: 1, bit_11: 0
+
+  bool homingFinished = false;
+  uint32_t tries = 0;
+
+  Command command;
+  command.setModeOfOperation(ModeOfOperationEnum::HomingMode);
+  stageCommand(command);
+
+  while (!homingFinished && tries < 20) {
+    MELO_INFO_STREAM("Homing in progress...");
+    Reading reading = getReading();
+    Statusword statusword = reading.getStatusword();
+    homingFinished = statusword.getHomingFinished();
+    MELO_INFO_STREAM("Statusword: " << statusword);
+    // wait for 100ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    tries++;
+  }
+
+  if (homingFinished ) {
+    MELO_INFO_STREAM("you have to store the offset.");
+  } else {
+    MELO_ERROR_STREAM("Homing not finished after 10 tries.");
+  }
+
+
+  return success;
+}
+
+
 
 bool Elmo::getStatuswordViaSdo(Statusword& statusword) {
   uint16_t statuswordValue = 0;

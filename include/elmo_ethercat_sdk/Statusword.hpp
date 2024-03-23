@@ -51,6 +51,7 @@ class Statusword {
   void setFromRawStatusword(uint16_t status);
   DriveState getDriveState() const;
   std::string getDriveStateString() const;
+  bool getHomingFinished() const;
 };
 
 }  // namespace elmo

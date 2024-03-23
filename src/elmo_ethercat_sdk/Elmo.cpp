@@ -328,12 +328,14 @@ bool Elmo::doHoming() {
 
   if (homingFinished ) {
     MELO_INFO_STREAM("you have to store the offset.");
+    return true;
   } else {
     MELO_ERROR_STREAM("Homing not finished after 10 tries.");
+    return false; 
   }
 
 
-  return success;
+  return false;
 }
 
 
